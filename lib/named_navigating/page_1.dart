@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_project/named_navigating/page_2.dart';
@@ -44,6 +46,9 @@ main() {
       GetPage(name: "/page2", page: ()=>const Page2()),
       GetPage(name: "/page3", page: ()=>const Page3()),
     ],
+    routingCallback: (route){
+      log(route!.current);
+    },
     unknownRoute: GetPage(name: "/notFound" , page : ()=> const Page1()),
     home: const Page1(),
   ));
