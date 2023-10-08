@@ -11,7 +11,7 @@ class Page3 extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(Get.arguments!!),
+            Text(Get.arguments!),
             const Text("Page 3"),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
