@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
+import 'package:get_project/to-do_app/list_view_body.dart';
 import 'package:get_storage/get_storage.dart';
 
 main() async {
@@ -20,7 +21,7 @@ class _HomePageState extends State<HomePage> {
   GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
   var darkMode = Get.isDarkMode.obs;
   final storage = GetStorage();
-  var locale = Get.deviceLocale;
+  var locale = Get.deviceLocale.obs;
 
   // static final _otherBox = () => GetStorage('MyPref');
   @override
@@ -30,17 +31,10 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _restoreData() {
-    locale = Locale(
+    locale.value = Locale(
         storage.read('locale')); // null check for first time running this
-    if (locale != null) {
-      if (kDebugMode) {
-        if (kDebugMode) {
-          print(locale);
-        }
-      }
-      Get.changeTheme(ThemeData.dark());
+    Get.changeTheme(ThemeData.dark());
     }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -55,7 +49,7 @@ class _HomePageState extends State<HomePage> {
         GlobalCupertinoLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
       ],
-      locale: locale,
+      locale: locale.value,
       fallbackLocale: const Locale('en'),
       home: SafeArea(
         minimum: const EdgeInsets.fromLTRB(0, 40, 0, 0),
@@ -141,7 +135,8 @@ class _HomePageState extends State<HomePage> {
                       onSelected: (val) async => {
                         await storage.write("locale", val),
                         storage.save(),
-                        Get.updateLocale(Locale(val!)),
+                        locale.value= Locale(val!),
+                        Get.updateLocale(Locale(val)),
                         scaffoldKey.currentState?.closeDrawer(),
                       },
                     ),
@@ -164,7 +159,10 @@ class _HomePageState extends State<HomePage> {
                 ],
               )),
           body: Center(
-            child: Text('title'.tr),
+            child: Obx(
+               () =>
+                 ListViewBody(locale: locale.value!.languageCode,)
+            ),
           ),
         ),
       ),
