@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_project/to-do_app/firebase_controller.dart';
@@ -14,29 +13,37 @@ class ListViewBody extends StatelessWidget {
   Widget build(BuildContext context) {
     // FirebaseController.getRef().init();
     List<ToDo> list = FirebaseController.getRef().todos;
-    return Obx(() =>
-        ListView.builder(
-            itemCount: list.length,
-            itemBuilder: (context, index) {
-              return ListTile(
-                title: Text(parsNumbers(list[index].name, (locale))),
-                subtitle: Text(
-                    DateFormat.yMMMd(locale).format(list[index].date)),
-              );
-            }));
+    return Obx(() => ListView.builder(
+        itemCount: list.length,
+        itemBuilder: (context, index) {
+          return ListTile(
+            leading: IconButton(
+              icon: const Icon(
+                Icons.delete,
+                color: Colors.red,
+              ),
+              onPressed: () {
+                list.removeAt(index);
+              },
+            ),
+            title: Text(parsNumbers(list[index].name, (locale))),
+            subtitle: Text(DateFormat.yMMMd(locale).format(list[index].date)),
+          );
+        }));
   }
-  parsNumbers(String string,String locale){
 
+  parsNumbers(String string, String locale) {
     // if(locale == 'en'){
     //   return arabicToEnglish(NumberFormat("###,###.##", locale)
     //       .format(double.parse(string)));
     // }
     // else
-      if(locale == 'ar'){
+    if (locale == 'ar') {
       return englishToArabic(string);
     }
-      return string;
+    return string;
   }
+
   englishToArabic(String string) {
     StringBuffer sb = StringBuffer();
     for (int i = 0; i < string.length; i++) {
@@ -77,12 +84,13 @@ class ListViewBody extends StatelessWidget {
     '\u0668': '8',
     '\u0669': '9',
   };
-  showDate(){
+
+  showDate() {
     showDatePicker(
       context: Get.context!,
-      initialDate: DateTime.now(), firstDate: DateTime.now(), lastDate: DateTime.now(),
+      initialDate: DateTime.now(),
+      firstDate: DateTime.now(),
+      lastDate: DateTime.now(),
     );
-
   }
-
 }
