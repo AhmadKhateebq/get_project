@@ -27,6 +27,12 @@ class Page3 extends StatelessWidget {
           ],
         ),
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: (){
+          Get.offAllNamed("/page1");
+        },
+        child: const Text("reset"),
+      ),
     );
   }
 }
