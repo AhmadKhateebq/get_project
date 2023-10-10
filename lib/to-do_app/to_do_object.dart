@@ -18,38 +18,4 @@ class ToDo{
     );
   }
 
-  factory ToDo.fromString(String data) {
-    print(data);
-    final keyValuePairs = data.split(', ');
-    DateTime? parsedDate;
-    String? parsedName;
-    String? parsedId;
-
-    // Iterate through key-value pairs and extract values
-    for (final pair in keyValuePairs) {
-      final parts = pair.split(': ');
-      if (parts.length == 2) {
-        final key = parts[0];
-        final value = parts[1];
-        if (key == 'date') {
-          print(key);
-          parsedDate = DateTime.parse(value);
-        } else if (key == 'name') {
-          parsedName = value;
-        } else if (key == 'id') {
-          parsedId = value;
-        }
-      }
-    }
-
-    if (parsedDate != null && parsedName != null) {
-      return ToDo(
-        date: parsedDate,
-        name: parsedName,
-        id: parsedId,
-      );
-    } else {
-      throw FormatException('Invalid data format');
-    }
-  }
 }

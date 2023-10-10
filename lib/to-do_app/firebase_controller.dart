@@ -1,4 +1,5 @@
 import 'package:firebase_database/firebase_database.dart';
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:get_project/to-do_app/to_do_object.dart';
 
@@ -21,9 +22,13 @@ class FirebaseController {
     try {
       todos.add(todo);
       _database.ref('/todo').push().set(todo.toJson());
-      print("ToDo saved successfully.");
+      if (kDebugMode) {
+        print("ToDo saved successfully.");
+      }
     } catch (error) {
-      print("Error saving ToDo: $error");
+      if (kDebugMode) {
+        print("Error saving ToDo: $error");
+      }
     }
   }
 
