@@ -1,4 +1,7 @@
+
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get_project/to-do_app/firebase_controller.dart';
 import 'package:get_project/to-do_app/to_do_object.dart';
 import 'package:intl/intl.dart';
 
@@ -9,21 +12,18 @@ class ListViewBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    List<ToDo> list = [
-      ToDo(date: DateTime.now(), name: "1213121"),
-      ToDo(date: DateTime.now(), name: "211.254"),
-      ToDo(date: DateTime.now(), name: "3"),
-      ToDo(date: DateTime.now(), name: "4"),
-      ToDo(date: DateTime.now(), name: "5"),
-    ];
-    return ListView.builder(
-        itemCount: 5,
-        itemBuilder: (context, index) {
-          return ListTile(
-            title: Text(parsNumbers(list[index].name, (locale))),
-            subtitle: Text(DateFormat.yMMMd(locale).format(DateTime.now())),
-          );
-        });
+    // FirebaseController.getRef().init();
+    List<ToDo> list = FirebaseController.getRef().todos;
+    return Obx(() =>
+        ListView.builder(
+            itemCount: list.length,
+            itemBuilder: (context, index) {
+              return ListTile(
+                title: Text(parsNumbers(list[index].name, (locale))),
+                subtitle: Text(
+                    DateFormat.yMMMd(locale).format(list[index].date)),
+              );
+            }));
   }
   parsNumbers(String string,String locale){
 
@@ -33,8 +33,7 @@ class ListViewBody extends StatelessWidget {
     // }
     // else
       if(locale == 'ar'){
-      return englishToArabic(NumberFormat("###,###.##", locale)
-          .format(double.parse(string)));
+      return englishToArabic(string);
     }
       return string;
   }
@@ -78,4 +77,12 @@ class ListViewBody extends StatelessWidget {
     '\u0668': '8',
     '\u0669': '9',
   };
+  showDate(){
+    showDatePicker(
+      context: Get.context!,
+      initialDate: DateTime.now(), firstDate: DateTime.now(), lastDate: DateTime.now(),
+    );
+
+  }
+
 }

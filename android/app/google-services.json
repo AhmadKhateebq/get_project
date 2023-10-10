@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "910477989919",
+    "firebase_url": "https://to-do-app-quiz-plus-task-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "to-do-app-quiz-plus-task",
+    "storage_bucket": "to-do-app-quiz-plus-task.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:910477989919:android:6a2cf10c036b69bfe09d2a",
+        "android_client_info": {
+          "package_name": "com.example.get_project"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyChQLf7QcPidBnZ5e0KNyMNmRMwx5zaoCc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

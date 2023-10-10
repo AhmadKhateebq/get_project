@@ -1,11 +1,20 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get/get.dart';
-import 'package:flutter/material.dart';
+import 'package:get_project/to-do_app/firebase_controller.dart';
 import 'package:get_project/to-do_app/list_view_body.dart';
+import 'package:get_project/to-do_app/to_do_object.dart';
 import 'package:get_storage/get_storage.dart';
 
+import '../firebase_options.dart';
+
 main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.android,
+  );
   await GetStorage.init();
   runApp(const HomePage());
 }
@@ -21,20 +30,23 @@ class _HomePageState extends State<HomePage> {
   GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
   var darkMode = Get.isDarkMode.obs;
   final storage = GetStorage();
+  final database = FirebaseController.getRef();
   var locale = Get.deviceLocale.obs;
 
   // static final _otherBox = () => GetStorage('MyPref');
   @override
   void initState() {
     _restoreData();
+
     super.initState();
   }
 
-  void _restoreData() {
+  _restoreData() async {
     locale.value = Locale(
         storage.read('locale')); // null check for first time running this
     Get.changeTheme(ThemeData.dark());
-    }
+    await database.init();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -104,6 +116,16 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ),
                   ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  ListTile(
+                    title: Text("add".tr),
+                    leading: const Icon(Icons.add),
+                    onTap: () async {
+                      showAddTodoOverlay();
+                    },
+                  ),
                   Obx(
                     () => ListTile(
                       title: Text("theme".tr),
@@ -135,7 +157,7 @@ class _HomePageState extends State<HomePage> {
                       onSelected: (val) async => {
                         await storage.write("locale", val),
                         storage.save(),
-                        locale.value= Locale(val!),
+                        locale.value = Locale(val!),
                         Get.updateLocale(Locale(val)),
                         scaffoldKey.currentState?.closeDrawer(),
                       },
@@ -153,19 +175,64 @@ class _HomePageState extends State<HomePage> {
                         print(Get.locale);
                         print(Get.deviceLocale);
                       }
-
+                      showDate();
                     },
                   )
                 ],
               )),
           body: Center(
-            child: Obx(
-               () =>
-                 ListViewBody(locale: locale.value!.languageCode,)
-            ),
+            child: Obx(() => ListViewBody(
+                  locale: locale.value!.languageCode,
+                )),
           ),
         ),
       ),
+    );
+  }
+
+  void showAddTodoOverlay() {
+    TextEditingController textController = TextEditingController();
+    Get.bottomSheet(
+      Container(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text('Add Todo'),
+            TextField(
+              controller: textController,
+              decoration: const InputDecoration(
+                labelText: 'Todo Name',
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                final date = await showDate()??DateTime.now();
+                final name = textController.text;
+                database.save(ToDo(date: date, name: name));
+                Get.back(); // Close the overlay
+              },
+              child: const Text('Save'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Get.back();
+              },
+              child: const Text('Back'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<DateTime?> showDate()  async {
+    return showDatePicker(
+      context: Get.context!,
+      initialDate: DateTime.now(),
+      firstDate: DateTime.now(),
+      lastDate: DateTime(DateTime.now().year + 2),
+      locale: locale.value,
     );
   }
 }
@@ -181,6 +248,7 @@ class Messages extends Translations {
           'menu': 'Main Menu',
           'theme': 'Change Theme',
           'more': 'about us',
+          'add': 'add a todo',
           'default_language': 'English',
         },
         'ar': {
@@ -191,6 +259,7 @@ class Messages extends Translations {
           'menu': "القائمه الرئيسيه",
           'theme': "واجهة التطبيق",
           'more': "المزيد عنا",
+          'add': "اضف مهمه",
           'default_language': "العربيه",
         }
       };
