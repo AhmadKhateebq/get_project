@@ -1,3 +1,4 @@
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
@@ -18,14 +19,20 @@ class FirebaseController {
     _todos.assignAll(await getAll());
   }
 
-  save(ToDo todo) {
+  save(ToDo todo) async {
     try {
       todos.add(todo);
       _database.ref('/todo').push().set(todo.toJson());
       if (kDebugMode) {
         print("ToDo saved successfully.");
       }
-    } catch (error) {
+    } catch (error,stackTrace) {
+      await FirebaseCrashlytics.instance.recordError(
+        error,
+        stackTrace,
+        reason: 'a non-fatal error',
+        information: ['further diagnostic information about the error', 'version 2.0'],
+      );
       if (kDebugMode) {
         print("Error saving ToDo: $error");
       }
