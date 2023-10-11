@@ -17,24 +17,15 @@ import 'package:flutter/foundation.dart'
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
-      throw UnsupportedError(
-        'DefaultFirebaseOptions have not been configured for web - '
-        'you can reconfigure this by running the FlutterFire CLI again.',
-      );
+      return web;
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
         return android;
       case TargetPlatform.iOS:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for ios - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return ios;
       case TargetPlatform.macOS:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for macos - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return macos;
       case TargetPlatform.windows:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for windows - '
@@ -52,6 +43,17 @@ class DefaultFirebaseOptions {
     }
   }
 
+  static const FirebaseOptions web = FirebaseOptions(
+    apiKey: 'AIzaSyCDaERykH9FusXda92xPdFZE-slkkjoBHc',
+    appId: '1:910477989919:web:33516658cd91a3ebe09d2a',
+    messagingSenderId: '910477989919',
+    projectId: 'to-do-app-quiz-plus-task',
+    authDomain: 'to-do-app-quiz-plus-task.firebaseapp.com',
+    databaseURL: 'https://to-do-app-quiz-plus-task-default-rtdb.europe-west1.firebasedatabase.app',
+    storageBucket: 'to-do-app-quiz-plus-task.appspot.com',
+    measurementId: 'G-JVJKPSQ1B8',
+  );
+
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyChQLf7QcPidBnZ5e0KNyMNmRMwx5zaoCc',
     appId: '1:910477989919:android:6a2cf10c036b69bfe09d2a',
@@ -59,5 +61,25 @@ class DefaultFirebaseOptions {
     projectId: 'to-do-app-quiz-plus-task',
     databaseURL: 'https://to-do-app-quiz-plus-task-default-rtdb.europe-west1.firebasedatabase.app',
     storageBucket: 'to-do-app-quiz-plus-task.appspot.com',
+  );
+
+  static const FirebaseOptions ios = FirebaseOptions(
+    apiKey: 'AIzaSyAcVQ08qTQ11Ybhq2zeGc2PI8oeKS-8YG4',
+    appId: '1:910477989919:ios:6edd1d44522c2d7ee09d2a',
+    messagingSenderId: '910477989919',
+    projectId: 'to-do-app-quiz-plus-task',
+    databaseURL: 'https://to-do-app-quiz-plus-task-default-rtdb.europe-west1.firebasedatabase.app',
+    storageBucket: 'to-do-app-quiz-plus-task.appspot.com',
+    iosBundleId: 'com.example.getProject',
+  );
+
+  static const FirebaseOptions macos = FirebaseOptions(
+    apiKey: 'AIzaSyAcVQ08qTQ11Ybhq2zeGc2PI8oeKS-8YG4',
+    appId: '1:910477989919:ios:fcc34d50368d7794e09d2a',
+    messagingSenderId: '910477989919',
+    projectId: 'to-do-app-quiz-plus-task',
+    databaseURL: 'https://to-do-app-quiz-plus-task-default-rtdb.europe-west1.firebasedatabase.app',
+    storageBucket: 'to-do-app-quiz-plus-task.appspot.com',
+    iosBundleId: 'com.example.getProject.RunnerTests',
   );
 }

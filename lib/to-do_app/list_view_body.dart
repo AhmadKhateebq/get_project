@@ -84,13 +84,4 @@ class ListViewBody extends StatelessWidget {
     '\u0668': '8',
     '\u0669': '9',
   };
-
-  showDate() {
-    showDatePicker(
-      context: Get.context!,
-      initialDate: DateTime.now(),
-      firstDate: DateTime.now(),
-      lastDate: DateTime.now(),
-    );
-  }
 }
