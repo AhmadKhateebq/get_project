@@ -1,3 +1,5 @@
+import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get/get.dart';
@@ -9,6 +11,7 @@ import 'home_widget.dart';
 
 main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
   Get.put(TodoController());
   runApp(GetMaterialApp(
       translations: TodoTranslations(),
@@ -29,7 +32,6 @@ main() async {
 
 class MainPage extends StatelessWidget {
   const MainPage({super.key});
-
   @override
   Widget build(BuildContext context) {
     return GetBuilder<TodoController>(
@@ -40,4 +42,5 @@ class MainPage extends StatelessWidget {
       ),
     );
   }
+
 }

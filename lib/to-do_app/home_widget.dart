@@ -62,6 +62,7 @@ class HomePage extends GetView<TodoController> {
                 title: Text("add".tr),
                 leading: const Icon(Icons.add),
                 onTap: () async {
+                  controller.log("list_tile_pressed");
                   controller.showAddTodoOverlay();
                 },
               ),
@@ -69,6 +70,7 @@ class HomePage extends GetView<TodoController> {
                 () => ListTile(
                   title: Text("theme".tr),
                   onTap: () {
+                    controller.log("list_tile_pressed");
                     controller.changeTheme();
                   },
                   leading: Icon(controller.modeIcon),
@@ -88,7 +90,10 @@ class HomePage extends GetView<TodoController> {
                   textStyle: const TextStyle(fontWeight: FontWeight.bold),
                   hintText: "default_language".tr,
                   initialSelection: 'English',
-                  onSelected: (val) async => {controller.changeLanguage(val)},
+                  onSelected: (val) async => {
+                    controller.log("drop_down_menu_selected"),
+                    controller.changeLanguage(val),
+                  },
                 ),
               ),
               const SizedBox(
@@ -98,7 +103,7 @@ class HomePage extends GetView<TodoController> {
                 leading: const Icon(Icons.info),
                 title: Text("more".tr),
                 onTap: () async {
-                  controller.log();
+                  controller.log("more_info_selected");
                 },
               ),
               ListTile(
@@ -108,6 +113,7 @@ class HomePage extends GetView<TodoController> {
                 ),
                 title: Text("crash".tr),
                 onTap: () async {
+                  controller.log("error_occurred");
                   controller.error();
                 },
               )
@@ -120,4 +126,6 @@ class HomePage extends GetView<TodoController> {
       ),
     );
   }
+
+
 }

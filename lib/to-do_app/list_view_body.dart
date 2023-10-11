@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_project/to-do_app/firebase_controller.dart';
+import 'package:get_project/to-do_app/state_controller.dart';
 import 'package:get_project/to-do_app/to_do_object.dart';
 import 'package:intl/intl.dart';
 
@@ -11,8 +12,8 @@ class ListViewBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // FirebaseController.getRef().init();
     List<ToDo> list = FirebaseController.getRef().todos;
+    Get.find<TodoController>().log("main_screen_entered");
     return Obx(() => ListView.builder(
         itemCount: list.length,
         itemBuilder: (context, index) {
@@ -23,6 +24,9 @@ class ListViewBody extends StatelessWidget {
                 color: Colors.red,
               ),
               onPressed: () {
+                Get.find<TodoController>().log("item_deleted",{
+                  'index':index
+                });
                 list.removeAt(index);
               },
             ),
@@ -84,13 +88,4 @@ class ListViewBody extends StatelessWidget {
     '\u0668': '8',
     '\u0669': '9',
   };
-
-  showDate() {
-    showDatePicker(
-      context: Get.context!,
-      initialDate: DateTime.now(),
-      firstDate: DateTime.now(),
-      lastDate: DateTime.now(),
-    );
-  }
 }

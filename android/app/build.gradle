@@ -1,9 +1,9 @@
 plugins {
     id "com.android.application"
     id "kotlin-android"
+    id 'com.google.gms.google-services'
     id "dev.flutter.flutter-gradle-plugin"
 }
-
 def localProperties = new Properties()
 def localPropertiesFile = rootProject.file('local.properties')
 if (localPropertiesFile.exists()) {
@@ -64,4 +64,6 @@ flutter {
     source '../..'
 }
 
-dependencies {}
+dependencies {
+    implementation 'com.google.firebase:firebase-analytics:17.4.1'
+}
