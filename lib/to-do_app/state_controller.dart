@@ -15,19 +15,18 @@ import 'firebase_controller.dart';
 class TodoController extends GetxController with StateMixin {
   var darkMode = Get.isDarkMode.obs;
   final storage = GetStorage();
-  late final FirebaseController database ;
+  late final FirebaseController database;
   var locale = Get.deviceLocale.obs;
-  late FirebaseAnalytics analytics ;
+  late FirebaseAnalytics analytics;
   var loading = true.obs;
   bool started = false;
 
   GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
 
   restoreData() async {
-    locale.value = Locale(
-        storage.read('locale')); // null check for first time running this
-    Get.changeTheme(ThemeData.dark());
-    await database.init();
+    Get.changeTheme(storage.read("dark")==true?ThemeData.dark():ThemeData.light());
+    Get.updateLocale(Locale(
+        storage.read('locale')));
   }
 
   Future<DateTime?> showDate() async {
@@ -60,6 +59,10 @@ class TodoController extends GetxController with StateMixin {
                 final date = await showDate() ?? DateTime.now();
                 final name = textController.text;
                 database.save(ToDo(date: date, name: name));
+                log("add_todo",{
+                  'name': name,
+                  'date' : date.toString()
+                });
                 Get.back(); // Close the overlay
               },
               child: const Text('Save'),
@@ -75,60 +78,66 @@ class TodoController extends GetxController with StateMixin {
       ),
     );
   }
-  RxBool isLoading(){
 
-    if(!started) {
+  RxBool isLoading() {
+    if (!started) {
       started = true;
       init();
     }
     return loading;
   }
+
   get darkIcon => darkMode.value ? Icons.light : Icons.light_outlined;
 
   get modeIcon => darkMode.value ? Icons.dark_mode : Icons.light_mode;
 
   get color => !darkMode.value ? Colors.deepPurple[600] : Colors.blueGrey;
 
-  void changeTheme() {
+  Future<void> changeTheme() async {
+    log("change_theme",{
+      'from' : darkMode.value?"dark mode":"light mode",
+      'to' : !darkMode.value?"dark mode":"light mode",
+    });
     darkMode.value = !darkMode.value;
+    await storage.write("dark", darkMode.value);
+    storage.save();
     Get.changeTheme(Get.isDarkMode ? ThemeData.light() : ThemeData.dark());
   }
 
   changeLanguage(String? val) async {
+    log("changed_language",{
+      'from':locale.value!.languageCode,
+      'to':val!,
+    });
     await storage.write("locale", val);
     storage.save();
-    locale.value = Locale(val!);
+    locale.value = Locale(val);
     Get.updateLocale(Locale(val));
     scaffoldKey.currentState?.closeDrawer();
   }
 
-  log([String? message]) async {
-    if(message != null){
-      await analytics
-          .logEvent(name: message);
-    }else{
-      await analytics
-          .logEvent(name: "pressed on list tile", parameters: {'key': 'value'});
-      await FirebaseAnalytics.instance.logBeginCheckout(
-          value: 10.0,
-          currency: 'USD',
-          items: [
-            AnalyticsEventItem(itemName: 'Socks', itemId: 'xjw73nano', price: 10),
-          ],
-          coupon: '10PERCENT-OFF');
-    }
+  log([String? event, Map<String, dynamic>? parameters]) async {
+    if (event != null && parameters != null) {
+      await analytics.logEvent(name: event,parameters: parameters);
+    } else
+      if (event != null) {
+        analytics.logEvent(name: event);
+      } else {
+        analytics.logEvent(name: "unknown_event");
+      }
 
   }
 
-  error()async {
-    if (locale.value?.languageCode == ('ar')) {
-      throw Exception();
-    }
+  error() async {
     if (kDebugMode) {
       try {
+        if (locale.value?.languageCode == ('ar')) {
+          throw Exception();
+        }
         double i = double.parse("num");
         print(i);
-      } catch (error, stackTrace) {
+      } on FormatException catch (error,stackTrace) {
+        FirebaseCrashlytics.instance.log("inside catch");
         await FirebaseCrashlytics.instance.recordError(
           error,
           stackTrace,
@@ -138,6 +147,10 @@ class TodoController extends GetxController with StateMixin {
         if (kDebugMode) {
           print("Error saving ToDo: $error");
         }
+        throw const FormatException();
+      } on Exception catch (_) {
+        print("ERROOOR");
+        throw Exception();
       }
     }
   }
@@ -146,22 +159,72 @@ class TodoController extends GetxController with StateMixin {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.android,
     );
+
     await errorInit();
+    await Future.delayed(const Duration(seconds: 1));
     await GetStorage.init();
     Get.find<TodoController>().change(RxStatus.success());
-    FirebaseController.getRef();
-    analytics =  FirebaseAnalytics.instance;
+    database = FirebaseController.getRef();
+    analytics = FirebaseAnalytics.instance;
     loading.value = false;
-    log("init finished");
+    await restoreData();
+    await fillLogs();
   }
+
   errorInit() async {
     FlutterError.onError = (errorDetails) {
+      print(errorDetails.toString());
+      print("asd123");
       FirebaseCrashlytics.instance.recordFlutterFatalError(errorDetails);
     };
     // Pass all uncaught asynchronous errors that aren't handled by the Flutter framework to Crashlytics
     PlatformDispatcher.instance.onError = (error, stack) {
-      FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+      print(error.runtimeType.toString());
+      switch (error.toString()) {
+        // case 'Exception':
+        //   {
+        //     print("Exception 1");
+        //     break;
+        //   }
+        case 'FormatException':
+          {
+            print("Format Exception");
+            break;
+          }
+        default:
+          {
+            FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+            break;
+          }
+      }
       return true;
     };
+  }
+  fillLogs() async {
+      for (int i = 0; i < 50; i++) {
+        print(i);
+        print("entered logging");
+        // await analytics.logEvent(name : "list_tile_pressed");
+        // await analytics.logEvent(name :"list_tile_pressed");
+        // await analytics.logEvent(name :"drop_down_menu_selected");
+        // await analytics.logEvent(name :"more_info_selected");
+        // await analytics.logEvent(name :"error_occurred");
+        // await analytics.logEvent(name :"changed_language", parameters: {
+        //   'from': 'en',
+        //   'to': 'ar',
+        // });
+        // await analytics.logEvent(name :"change_theme", parameters :
+        //     {
+        //   'from': "light mode",
+        //   'to': "dark mode",
+        // });
+
+        await log("item_deleted");
+        await log("item_deleted");
+        await log("item_deleted");
+        await log("item_deleted");
+        print("logging finished");
+      }
+
   }
 }
