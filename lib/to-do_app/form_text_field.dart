@@ -31,14 +31,12 @@ class FormTextField extends StatelessWidget {
         Focus(
           onFocusChange: (f) {
             if (f) {
-              print("isFocused");
               _focused.value = true;
             }
             if (!f) {
               if (_focused.value) {
                 _text.value =
                     _validator(controller.text) ? "" : "This field is required";
-                print("focused and not focused");
               }
             }
           },
@@ -79,7 +77,25 @@ class FormTextField extends StatelessWidget {
     _focused.value = true;
     if (_focused.value) {
       _text.value = _validator(controller.text) ? "" : "This field is required";
-      print("focused and not focused");
     }
   }
+}
+class FormListValidator{
+  FormListValidator();
+  final List<FormTextField> _list = [];
+  add(FormTextField field){
+    _list.add(field);
+  }
+  removeAt(int i){
+    _list.removeAt(i);
+  }
+  remove(FormTextField field){
+    _list.remove(field);
+  }
+  validateAll(){
+    for(int i = 0;i<_list.length;i++){
+      _list[i].validate();
+    }
+  }
+
 }
