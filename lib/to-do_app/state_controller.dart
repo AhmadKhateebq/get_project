@@ -17,6 +17,7 @@ import '../firebase_options.dart';
 class TodoController extends GetxController with StateMixin {
   var darkMode = Get.isDarkMode.obs;
   final storage = GetStorage();
+
   // late final FirebaseController database;
   var locale = Get.deviceLocale.obs;
   late FirebaseAnalytics analytics;
@@ -26,9 +27,9 @@ class TodoController extends GetxController with StateMixin {
   GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
 
   restoreData() async {
-    Get.changeTheme(storage.read("dark")==true?ThemeData.dark():ThemeData.light());
-    Get.updateLocale(Locale(
-        storage.read('locale')));
+    Get.changeTheme(
+        storage.read("dark") == true ? ThemeData.dark() : ThemeData.light());
+    Get.updateLocale(Locale(storage.read('locale')));
   }
 
   Future<DateTime?> showDate() async {
@@ -42,6 +43,7 @@ class TodoController extends GetxController with StateMixin {
   }
 
   void showAddTodoOverlay() {
+    DateTime date = DateTime(1900);
     TextEditingController textController = TextEditingController();
     Get.bottomSheet(
       Container(
@@ -50,22 +52,35 @@ class TodoController extends GetxController with StateMixin {
           mainAxisSize: MainAxisSize.min,
           children: [
             const Text('Add Todo'),
-            TextField(
-              controller: textController,
-              decoration: const InputDecoration(
-                labelText: 'Todo Name',
-              ),
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: textController,
+                    decoration: const InputDecoration(
+                      labelText: 'Todo Name',
+                    ),
+                  ),
+                ),
+                IconButton(
+                    onPressed: () async {
+                      date = await showDate() ?? DateTime.now();
+                    },
+                    icon: const Icon(Icons.calendar_month))
+              ],
             ),
             ElevatedButton(
               onPressed: () async {
-                final date = await showDate() ?? DateTime.now();
+                if (date == DateTime(1900)) {
+                  date = await showDate() ?? DateTime.now();
+                }
                 final name = textController.text;
-                Get.find<RequestsController>().addTodo(ToDo(name : name,date: date));
-                Get.find<RequestsController>().todos.add(ToDo(name : name,date: date));
-                log("add_todo",{
-                  'name': name,
-                  'date' : date.toString()
-                });
+                Get.find<RequestsController>()
+                    .addTodo(ToDo(name: name, date: date));
+                Get.find<RequestsController>()
+                    .todos
+                    .add(ToDo(name: name, date: date));
+                log("add_todo", {'name': name, 'date': date.toString()});
                 Get.back(); // Close the overlay
               },
               child: const Text('Save'),
@@ -79,6 +94,7 @@ class TodoController extends GetxController with StateMixin {
           ],
         ),
       ),
+      backgroundColor: Colors.white70,
     );
   }
 
@@ -97,9 +113,9 @@ class TodoController extends GetxController with StateMixin {
   get color => !darkMode.value ? Colors.deepPurple[600] : Colors.blueGrey;
 
   Future<void> changeTheme() async {
-    log("change_theme",{
-      'from' : darkMode.value?"dark mode":"light mode",
-      'to' : !darkMode.value?"dark mode":"light mode",
+    log("change_theme", {
+      'from': darkMode.value ? "dark mode" : "light mode",
+      'to': !darkMode.value ? "dark mode" : "light mode",
     });
     darkMode.value = !darkMode.value;
     await storage.write("dark", darkMode.value);
@@ -108,9 +124,9 @@ class TodoController extends GetxController with StateMixin {
   }
 
   changeLanguage(String? val) async {
-    log("changed_language",{
-      'from':locale.value!.languageCode,
-      'to':val!,
+    log("changed_language", {
+      'from': locale.value!.languageCode,
+      'to': val!,
     });
     await storage.write("locale", val);
     storage.save();
@@ -121,14 +137,12 @@ class TodoController extends GetxController with StateMixin {
 
   log([String? event, Map<String, dynamic>? parameters]) async {
     if (event != null && parameters != null) {
-      await analytics.logEvent(name: event,parameters: parameters);
-    } else
-      if (event != null) {
-        analytics.logEvent(name: event);
-      } else {
-        analytics.logEvent(name: "unknown_event");
-      }
-
+      await analytics.logEvent(name: event, parameters: parameters);
+    } else if (event != null) {
+      analytics.logEvent(name: event);
+    } else {
+      analytics.logEvent(name: "unknown_event");
+    }
   }
 
   error() async {
@@ -139,7 +153,7 @@ class TodoController extends GetxController with StateMixin {
         }
         double i = double.parse("num");
         print(i);
-      } on FormatException catch (error,stackTrace) {
+      } on FormatException catch (error, stackTrace) {
         FirebaseCrashlytics.instance.log("inside catch");
         await FirebaseCrashlytics.instance.recordError(
           error,
@@ -199,28 +213,28 @@ class TodoController extends GetxController with StateMixin {
       return true;
     };
   }
+
   fillLogs() async {
-      for (int i = 0; i < 50; i++) {
-        // await analytics.logEvent(name : "list_tile_pressed");
-        // await analytics.logEvent(name :"list_tile_pressed");
-        // await analytics.logEvent(name :"drop_down_menu_selected");
-        // await analytics.logEvent(name :"more_info_selected");
-        // await analytics.logEvent(name :"error_occurred");
-        // await analytics.logEvent(name :"changed_language", parameters: {
-        //   'from': 'en',
-        //   'to': 'ar',
-        // });
-        // await analytics.logEvent(name :"change_theme", parameters :
-        //     {
-        //   'from': "light mode",
-        //   'to': "dark mode",
-        // });
+    for (int i = 0; i < 50; i++) {
+      // await analytics.logEvent(name : "list_tile_pressed");
+      // await analytics.logEvent(name :"list_tile_pressed");
+      // await analytics.logEvent(name :"drop_down_menu_selected");
+      // await analytics.logEvent(name :"more_info_selected");
+      // await analytics.logEvent(name :"error_occurred");
+      // await analytics.logEvent(name :"changed_language", parameters: {
+      //   'from': 'en',
+      //   'to': 'ar',
+      // });
+      // await analytics.logEvent(name :"change_theme", parameters :
+      //     {
+      //   'from': "light mode",
+      //   'to': "dark mode",
+      // });
 
-        await log("item_deleted");
-        await log("item_deleted");
-        await log("item_deleted");
-        await log("item_deleted");
-      }
-
+      await log("item_deleted");
+      await log("item_deleted");
+      await log("item_deleted");
+      await log("item_deleted");
+    }
   }
 }

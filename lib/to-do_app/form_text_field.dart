@@ -18,6 +18,7 @@ class FormTextField extends StatelessWidget {
   final TextEditingController controller;
   final _changed = false.obs;
   final _focused = false.obs;
+  bool valid = false;
   late final bool _isPassword;
 
   final _text = "".obs;
@@ -76,26 +77,43 @@ class FormTextField extends StatelessWidget {
   validate() {
     _focused.value = true;
     if (_focused.value) {
-      _text.value = _validator(controller.text) ? "" : "This field is required";
+      _validator(controller.text)
+          ? {
+              _text.value = "",
+              valid = true,
+            }
+          : {valid = false, _text.value = "This field is required"};
     }
+    return valid;
   }
 }
-class FormListValidator{
+
+class FormListValidator {
   FormListValidator();
+
   final List<FormTextField> _list = [];
-  add(FormTextField field){
+
+  add(FormTextField field) {
     _list.add(field);
   }
-  removeAt(int i){
+
+  removeAt(int i) {
     _list.removeAt(i);
   }
-  remove(FormTextField field){
+
+  remove(FormTextField field) {
     _list.remove(field);
   }
-  validateAll(){
-    for(int i = 0;i<_list.length;i++){
-      _list[i].validate();
+
+  validateAll() {
+    bool valid = true;
+    for (var value in _list) {
+      if (value.validate()) {
+        valid = true;
+      } else {
+        valid = false;
+      }
+      return valid;
     }
   }
-
 }

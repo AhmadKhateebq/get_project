@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_project/to-do_app/form_text_field.dart';
@@ -9,20 +7,36 @@ import 'package:get_project/to-do_app/state_controller.dart';
 import 'home_widget.dart';
 import 'http_requests.dart';
 
-class LoginPage extends StatelessWidget {
-  LoginPage({super.key});
+class LoginPage extends StatefulWidget {
+  const LoginPage({super.key});
 
+  @override
+  State<LoginPage> createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
   final requestsController = Get.find<RequestsController>();
+
   final TextEditingController emailController = TextEditingController();
+
   final TextEditingController passwordController = TextEditingController();
+
   final isLogin = true.obs;
+
   final _formkey = GlobalKey<FormState>();
+
   final _emailkey = GlobalKey<FormFieldState>();
+
   final _passkey = GlobalKey<FormFieldState>();
+
   final formListValidator = FormListValidator();
+
   bool emailTouched = false;
+
   bool passwordTouched = false;
+
   final form = false;
+
   @override
   Widget build(BuildContext context) {
     print("////////////////");
@@ -30,14 +44,15 @@ class LoginPage extends StatelessWidget {
     final emailField = FormTextField(
       label: "Email",
       isPassword: false,
-      validator: (text) => requestsController.validateEmail(emailController.text),
+      validator: (text) =>
+          requestsController.validateEmail(emailController.text),
       controller: emailController,
     );
     final passwordField = FormTextField(
       label: "Password",
       isPassword: true,
-      validator: (text) => requestsController
-          .validatePassword(passwordController.text),
+      validator: (text) =>
+          requestsController.validatePassword(passwordController.text),
       controller: passwordController,
     );
     formListValidator.add(emailField);
@@ -94,66 +109,64 @@ class LoginPage extends StatelessWidget {
                       const SizedBox(
                         height: 20,
                       ),
-                      if(form)
-                      Form(
-                        key: _formkey,
-                        child: Column(
-                          children: [
-                            TextFormField(
-                              key: _emailkey,
-                              onTap: () {
-                                emailTouched = true;
-                                if (passwordTouched) {
-                                  _passkey.currentState!.validate();
-                                }
-                              },
-                              controller: emailController,
-                              decoration: const InputDecoration(
-                                border: UnderlineInputBorder(),
-                                floatingLabelStyle:
-                                    TextStyle(color: Colors.deepPurple),
-                                label: Text(
-                                  "Email",
-                                  style: TextStyle(
-                                      fontStyle: FontStyle.italic,
-                                      fontSize: 15),
+                      if (form)
+                        Form(
+                          key: _formkey,
+                          child: Column(
+                            children: [
+                              TextFormField(
+                                key: _emailkey,
+                                onTap: () {
+                                  emailTouched = true;
+                                  if (passwordTouched) {
+                                    _passkey.currentState!.validate();
+                                  }
+                                },
+                                controller: emailController,
+                                decoration: const InputDecoration(
+                                  border: UnderlineInputBorder(),
+                                  floatingLabelStyle:
+                                      TextStyle(color: Colors.deepPurple),
+                                  label: Text(
+                                    "Email",
+                                    style: TextStyle(
+                                        fontStyle: FontStyle.italic,
+                                        fontSize: 15),
+                                  ),
+                                ),
+                                validator: (value) =>
+                                    requestsController.validateEmail(value!)
+                                        ? null
+                                        : "Please enter a valid email",
+                              ),
+                              TextFormField(
+                                key: _passkey,
+                                onTap: () {
+                                  passwordTouched = true;
+                                  if (emailTouched) {
+                                    _emailkey.currentState!.validate();
+                                  }
+                                },
+                                validator: (value) =>
+                                    requestsController.validatePassword(value!)
+                                        ? null
+                                        : "please enter a valid password",
+                                obscureText: true,
+                                enableSuggestions: false,
+                                autocorrect: false,
+                                controller: passwordController,
+                                decoration: const InputDecoration(
+                                  floatingLabelStyle:
+                                      TextStyle(color: Colors.deepPurple),
+                                  border: UnderlineInputBorder(),
+                                  labelText: 'Password',
                                 ),
                               ),
-                              validator: (value) =>
-                                  requestsController.validateEmail(value!)
-                                      ? null
-                                      : "Please enter a valid email",
-                            ),
-                            TextFormField(
-                              key: _passkey,
-                              onTap: () {
-                                passwordTouched = true;
-                                if (emailTouched) {
-                                  _emailkey.currentState!.validate();
-                                }
-                              },
-                              validator: (value) =>
-                                  requestsController.validatePassword(value!)
-                                      ? null
-                                      : "please enter a valid password",
-                              obscureText: true,
-                              enableSuggestions: false,
-                              autocorrect: false,
-                              controller: passwordController,
-                              decoration: const InputDecoration(
-                                floatingLabelStyle:
-                                    TextStyle(color: Colors.deepPurple),
-                                border: UnderlineInputBorder(),
-                                labelText: 'Password',
-                              ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      ),
-                      if(!form)
-                      emailField,
-                      if(!form)
-                      passwordField,
+                      if (!form) emailField,
+                      if (!form) passwordField,
                       Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -177,7 +190,9 @@ class LoginPage extends StatelessWidget {
                                 backgroundColor: Colors.deepPurpleAccent,
                                 shape: const StadiumBorder()),
                             onPressed: () {
-                             formListValidator.validateAll();
+                              if(formListValidator.validateAll()){
+                                loginAndRegister(isLogin.value);
+                              }
                               if (form && _formkey.currentState!.validate()) {
                                 loginAndRegister(isLogin.value);
                               }
@@ -241,4 +256,3 @@ class LoginPage extends StatelessWidget {
     }
   }
 }
-
