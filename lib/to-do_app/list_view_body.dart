@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get_project/to-do_app/firebase_controller.dart';
 import 'package:get_project/to-do_app/state_controller.dart';
 import 'package:get_project/to-do_app/to_do_object.dart';
 import 'package:intl/intl.dart';
+
+import 'http_requests.dart';
 
 class ListViewBody extends StatelessWidget {
   const ListViewBody({super.key, required this.locale});
@@ -12,7 +13,7 @@ class ListViewBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    List<ToDo> list = FirebaseController.getRef().todos;
+    List<ToDo> list = Get.find<RequestsController>().todos;
     Get.find<TodoController>().log("main_screen_entered");
     return Obx(() => ListView.builder(
         itemCount: list.length,
@@ -23,10 +24,10 @@ class ListViewBody extends StatelessWidget {
                 Icons.delete,
                 color: Colors.red,
               ),
-              onPressed: () {
-                Get.find<TodoController>().log("item_deleted",{
-                  'index':index
-                });
+              onPressed: () async {
+                Get.find<TodoController>()
+                    .log("item_deleted", {'index': index});
+                await Get.find<RequestsController>().delete(list[index]);
                 list.removeAt(index);
               },
             ),

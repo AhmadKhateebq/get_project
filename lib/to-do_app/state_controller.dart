@@ -6,16 +6,18 @@ import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:get_project/to-do_app/http_requests.dart';
 import 'package:get_project/to-do_app/to_do_object.dart';
+// import 'package:get_project/to-do_app/to_do_object.dart';
 import 'package:get_storage/get_storage.dart';
 
 import '../firebase_options.dart';
-import 'firebase_controller.dart';
+// import 'firebase_controller.dart';
 
 class TodoController extends GetxController with StateMixin {
   var darkMode = Get.isDarkMode.obs;
   final storage = GetStorage();
-  late final FirebaseController database;
+  // late final FirebaseController database;
   var locale = Get.deviceLocale.obs;
   late FirebaseAnalytics analytics;
   var loading = true.obs;
@@ -58,7 +60,8 @@ class TodoController extends GetxController with StateMixin {
               onPressed: () async {
                 final date = await showDate() ?? DateTime.now();
                 final name = textController.text;
-                database.save(ToDo(date: date, name: name));
+                Get.find<RequestsController>().addTodo(ToDo(name : name,date: date));
+                Get.find<RequestsController>().todos.add(ToDo(name : name,date: date));
                 log("add_todo",{
                   'name': name,
                   'date' : date.toString()
@@ -164,22 +167,19 @@ class TodoController extends GetxController with StateMixin {
     await Future.delayed(const Duration(seconds: 1));
     await GetStorage.init();
     Get.find<TodoController>().change(RxStatus.success());
-    database = FirebaseController.getRef();
+    // database = FirebaseController.getRef();
     analytics = FirebaseAnalytics.instance;
     loading.value = false;
     await restoreData();
-    await fillLogs();
+    // await fillLogs();
   }
 
   errorInit() async {
     FlutterError.onError = (errorDetails) {
-      print(errorDetails.toString());
-      print("asd123");
       FirebaseCrashlytics.instance.recordFlutterFatalError(errorDetails);
     };
     // Pass all uncaught asynchronous errors that aren't handled by the Flutter framework to Crashlytics
     PlatformDispatcher.instance.onError = (error, stack) {
-      print(error.runtimeType.toString());
       switch (error.toString()) {
         // case 'Exception':
         //   {
@@ -188,7 +188,6 @@ class TodoController extends GetxController with StateMixin {
         //   }
         case 'FormatException':
           {
-            print("Format Exception");
             break;
           }
         default:
@@ -202,8 +201,6 @@ class TodoController extends GetxController with StateMixin {
   }
   fillLogs() async {
       for (int i = 0; i < 50; i++) {
-        print(i);
-        print("entered logging");
         // await analytics.logEvent(name : "list_tile_pressed");
         // await analytics.logEvent(name :"list_tile_pressed");
         // await analytics.logEvent(name :"drop_down_menu_selected");
@@ -223,7 +220,6 @@ class TodoController extends GetxController with StateMixin {
         await log("item_deleted");
         await log("item_deleted");
         await log("item_deleted");
-        print("logging finished");
       }
 
   }

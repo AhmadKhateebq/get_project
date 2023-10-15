@@ -18,4 +18,14 @@ class ToDo{
     );
   }
 
+  @override
+  String toString() {
+    return 'ToDo{date: $date, name: $name, id: $id}';
+  }
+
+  factory ToDo.fromJson(String key, Map<String, dynamic> value){
+    return ToDo(
+        id: key, name: value['name']!, date: DateTime.parse(value['date']!));
+  }
+
 }
