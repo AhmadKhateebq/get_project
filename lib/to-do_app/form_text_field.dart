@@ -51,6 +51,7 @@ class FormTextField extends StatelessWidget {
               },
               onChanged: (text) => _changed.value = true,
               controller: controller,
+              style: const TextStyle(color: Colors.black87),
               decoration: InputDecoration(
                 floatingLabelStyle: const TextStyle(color: Colors.deepPurple),
                 // border: const UnderlineInputBorder(borderSide: BorderSide(color: Colors.red)),
@@ -62,6 +63,7 @@ class FormTextField extends StatelessWidget {
                       color: _text.value == "" ? Colors.blue : Colors.red),
                 ),
                 labelText: _label,
+                labelStyle: const TextStyle(color: Colors.black87),
               ),
             ),
           ),
