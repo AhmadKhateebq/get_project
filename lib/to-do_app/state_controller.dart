@@ -75,11 +75,12 @@ class TodoController extends GetxController with StateMixin {
                   date = await showDate() ?? DateTime.now();
                 }
                 final name = textController.text;
-                Get.find<RequestsController>()
+                var id =await  Get.find<RequestsController>()
                     .addTodo(ToDo(name: name, date: date));
+                print(id.toString());
                 Get.find<RequestsController>()
                     .todos
-                    .add(ToDo(name: name, date: date));
+                    .add(ToDo(name: name, date: date,id: id.toString()));
                 log("add_todo", {'name': name, 'date': date.toString()});
                 Get.back(); // Close the overlay
               },
@@ -94,7 +95,7 @@ class TodoController extends GetxController with StateMixin {
           ],
         ),
       ),
-      backgroundColor: Colors.white70,
+      backgroundColor: Get.isDarkMode?Colors.black87:Colors.white70,
     );
   }
 

@@ -89,9 +89,9 @@ class RequestsController extends RxController {
     }
   }
 
-  Future<bool> addTodo(ToDo toDo) async {
+  Future<String> addTodo(ToDo toDo) async {
     try {
-      await http.post(Uri.parse("$firebaseUrl/${_userCredential['localId']}.json?auth=$_token"),
+     var resp =  await http.post(Uri.parse("$firebaseUrl/${_userCredential['localId']}.json?auth=$_token"),
           headers: {
             "Accept": "*/*",
             "Content-Type": "application/json; charset=utf-8",
@@ -101,10 +101,9 @@ class RequestsController extends RxController {
             "date": toDo.date.toString(),
             "name": toDo.name,
           }));
-      return true;
+     return jsonDecode(resp.body)["name"];
     } catch (e) {
-      // rethrow;
-      return false;
+      rethrow;
     }
   }
   Future<void> delete(ToDo todo) async{
@@ -136,6 +135,6 @@ bool validatePasswordEmail(String password,String email){
     _userCredential = {};
     Get.find<TodoController>().loading.value = true;
     Get.find<TodoController>().started = false;
-    Get.offAll(() => LoginPage());
+    Get.offAll(() => const LoginPage());
   }
 }
