@@ -2,7 +2,8 @@ class ToDo{
   DateTime date;
   String name;
   String? id;
-  ToDo({required this.date,required this.name,this.id});
+  int? cid;
+  ToDo({required this.date,required this.name,this.id,this.cid});
   Map<String, dynamic> toJson() {
     return {
       'date': date.toIso8601String(),

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:developer';
 import 'package:dio/dio.dart';
 import 'package:cancellation_token_http/http.dart' as http;
+import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:get_project/to-do_app/login_page.dart';
 import 'package:get_project/to-do_app/state_controller.dart';
@@ -20,6 +21,34 @@ class RequestsController extends RxController {
   static int i = 0;
   var token = CancelToken();
   bool finished = false;
+  int anchor = -1;
+  bool pageLock = false;
+  var pageEnd = false;
+  final _scrollController = ScrollController();
+
+  void _setupScrollController() {
+    _scrollController.addListener(_scrollListener);
+  }
+
+  Future<void> _scrollListener() async {
+    if (_scrollController.offset >=
+        _scrollController.position.maxScrollExtent) {
+      if (!pageLock) {
+        await printBy();
+      }
+      if (pageEnd) {
+        _scrollController.animateTo(
+            _scrollController.position.maxScrollExtent - 50,
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.fastOutSlowIn);
+      }
+    }
+  }
+
+  ScrollController get scrollController {
+    _setupScrollController();
+    return _scrollController;
+  }
 
   fetchAllData() {
     if (todos.isEmpty) {
@@ -37,6 +66,13 @@ class RequestsController extends RxController {
       });
     }
     return todos;
+  }
+
+  printBy() async {
+    pageLock = true;
+    int entries = 10;
+    await fetchDataByPage(entries: entries, anchorCID: anchor);
+    pageLock = false;
   }
 
   Future<bool> signIn(String email, String password) async {
@@ -57,7 +93,9 @@ class RequestsController extends RxController {
       // _userCredential.forEach((key, value) {print("$key - $value");});
 
       _token = _userCredential['idToken']!;
-      return fillList();
+      // return fillList();
+      await printBy();
+      return true;
     } catch (e) {
       // rethrow;
       return false;
@@ -77,7 +115,9 @@ class RequestsController extends RxController {
         });
     _userCredential = jsonDecode(response.data);
     _token = _userCredential['idToken']!;
-    return fillList();
+    // return fillList();
+    await printBy();
+    return true;
   }
 
   Future<bool> fillList() async {
@@ -88,7 +128,7 @@ class RequestsController extends RxController {
       // print("$getFilteredUrl${_userCredential['localId']}&auth=$_token");
       var value = await dio.get(
           "$firebaseUrl/${_userCredential['localId']}.json?",
-          queryParameters: {"auth": _token});
+          queryParameters: {"auth": _token, "orderBy": "\"cid\""});
       // print(value.body.toString());
       (jsonDecode(value.toString()) as Map<String, dynamic>)
           .forEach((key, value) {
@@ -99,7 +139,7 @@ class RequestsController extends RxController {
       });
       return true;
     } catch (e) {
-      rethrow;
+      return true;
     }
   }
 
@@ -141,8 +181,54 @@ class RequestsController extends RxController {
     }
   }
 
-  Future<String> addTodo(ToDo toDo) async {
+  fetchDataByPage({int? anchorCID, required int entries}) async {
+    print(anchorCID);
+    final response = await dio.get(
+      "$firebaseUrl/${_userCredential['localId']}.json",
+      queryParameters: {
+        "auth": _token,
+        "orderBy": "\"cid\"",
+        anchorCID != null ? "startAfter" : "": "${anchorCID ?? ""}",
+        "limitToFirst": "$entries"
+      },
+    );
     try {
+      final Map<String, dynamic> map = jsonDecode(response.toString());
+      map.forEach((key, value) {
+        todos.add(ToDo(
+            date: DateTime.parse(value['date']),
+            name: value['name'],
+            id: key,
+            cid: value['cid']));
+      });
+      anchor = todos.last.cid!;
+      return true;
+    } catch (e) {
+      print("eeee");
+      pageEnd = true;
+      return 0;
+    }
+  }
+
+  Future<int> getCounter() async {
+    var resp = (await dio.get(
+        "https://to-do-app-quiz-plus-task-default-rtdb.europe-west1.firebasedatabase.app/counter.json"));
+    return (jsonDecode(resp.toString())["counter"]);
+  }
+
+  Future<int> get counter async {
+    int c = await getCounter();
+    print(c);
+    await dio.put(counterString, data: {
+      "counter": c + 1,
+    });
+    return c;
+  }
+
+  Future<String> addTodo(ToDo toDo) async {
+    int c = await counter;
+    try {
+      var date = toDo.date;
       var resp = await http.post(
           Uri.parse(
               "$firebaseUrl/${_userCredential['localId']}.json?auth=$_token"),
@@ -152,8 +238,9 @@ class RequestsController extends RxController {
             "dataType": "json",
           },
           body: jsonEncode({
-            "date": toDo.date.toString(),
+            "date": "${date.year}-${date.month}-${date.day}",
             "name": toDo.name,
+            "cid": c,
           }));
       return jsonDecode(resp.body)["name"];
     } catch (e) {

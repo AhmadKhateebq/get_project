@@ -53,26 +53,37 @@ class ListViewBody extends StatelessWidget {
             ),
             Expanded(
               child: ListView.builder(
-                  itemCount: list.length,
+                controller: Get.find<RequestsController>().scrollController,
+                  itemCount: list.length + 1,
                   itemBuilder: (context, index) {
-                    return ListTile(
-                      leading: IconButton(
-                        icon: const Icon(
-                          Icons.delete,
-                          color: Colors.red,
-                        ),
-                        onPressed: () async {
-                          Get.find<TodoController>()
-                              .log("item_deleted", {'index': index});
-                          await Get.find<RequestsController>()
-                              .delete(list[index]);
-                          list.removeAt(index);
-                        },
-                      ),
-                      title: Text(parsNumbers(list[index].name, (locale))),
-                      subtitle: Text(
-                          DateFormat.yMMMd(locale).format(list[index].date)),
-                    );
+                    return (index != list.length)
+                        ? ListTile(
+                            leading: IconButton(
+                              icon: const Icon(
+                                Icons.delete,
+                                color: Colors.red,
+                              ),
+                              onPressed: () async {
+                                Get.find<TodoController>()
+                                    .log("item_deleted", {'index': index});
+                                await Get.find<RequestsController>()
+                                    .delete(list[index]);
+                                list.removeAt(index);
+                              },
+                            ),
+                            title:
+                                Text(parsNumbers(list[index].name, (locale))),
+                            subtitle: Text(DateFormat.yMMMd(locale)
+                                .format(list[index].date)),
+                          )
+                        : const ListTile(
+                            title: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: <Widget>[
+                                CircularProgressIndicator(),
+                              ],
+                            ),
+                          );
                   }),
             ),
           ],
@@ -90,6 +101,7 @@ class ListViewBody extends StatelessWidget {
     }
     return string;
   }
+
 
   englishToArabic(String string) {
     StringBuffer sb = StringBuffer();

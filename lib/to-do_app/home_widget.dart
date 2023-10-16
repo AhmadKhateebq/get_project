@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_project/to-do_app/state_controller.dart';
 
-import 'debouncer_class.dart';
 import 'http_requests.dart';
 import 'list_view_body.dart';
 
@@ -111,6 +110,7 @@ class HomePage extends GetView<TodoController> {
                   title: Text("more".tr),
                   onTap: () async {
                     controller.log("more_info_selected");
+                    await Get.find<RequestsController>().printBy();
                   },
                 ),
                 ListTile(
