@@ -1,9 +1,12 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_project/to-do_app/state_controller.dart';
 import 'package:get_project/to-do_app/to_do_object.dart';
 import 'package:intl/intl.dart';
 
+import 'debouncer_class.dart';
 import 'http_requests.dart';
 
 class ListViewBody extends StatelessWidget {
@@ -13,28 +16,67 @@ class ListViewBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final debouncer = Debouncer(milliseconds: 300);
     List<ToDo> list = Get.find<RequestsController>().todos;
+    final searchController = TextEditingController();
+    // final textFieldKey = GlobalKey<EditableTextState>();
     Get.find<TodoController>().log("main_screen_entered");
-    return Obx(() => ListView.builder(
-        itemCount: list.length,
-        itemBuilder: (context, index) {
-          return ListTile(
-            leading: IconButton(
-              icon: const Icon(
-                Icons.delete,
-                color: Colors.red,
+    return Obx(() => Column(
+          children: [
+            TextField(
+              // key: textFieldKey,
+              decoration: const InputDecoration(
+                floatingLabelStyle: TextStyle(color: Colors.deepPurple),
+                // border: const UnderlineInputBorder(borderSide: BorderSide(color: Colors.red)),
+                focusedBorder: UnderlineInputBorder(
+                  borderSide: BorderSide(color: Colors.cyan),
+                ),
+                labelText: "search",
+                labelStyle: TextStyle(color: Colors.black87),
               ),
-              onPressed: () async {
-                Get.find<TodoController>()
-                    .log("item_deleted", {'index': index});
-                await Get.find<RequestsController>().delete(list[index]);
-                list.removeAt(index);
+              controller: searchController,
+              onChanged: (val) {
+                debouncer.run(() async {
+                  print(val);
+                  String text =
+                      await Get.find<RequestsController>().search(val);
+                  if (text != "-null") {
+                    if (text.contains(val)) {
+                      log(text, name: "SEARCH RESULTS");
+                    } else {
+                      searchController.text = "couldnt find";
+                      log("COULDNT FIND ANY", name: "SEARCH RESULTS");
+                    }
+                  } else {}
+                });
               },
             ),
-            title: Text(parsNumbers(list[index].name, (locale))),
-            subtitle: Text(DateFormat.yMMMd(locale).format(list[index].date)),
-          );
-        }));
+            Expanded(
+              child: ListView.builder(
+                  itemCount: list.length,
+                  itemBuilder: (context, index) {
+                    return ListTile(
+                      leading: IconButton(
+                        icon: const Icon(
+                          Icons.delete,
+                          color: Colors.red,
+                        ),
+                        onPressed: () async {
+                          Get.find<TodoController>()
+                              .log("item_deleted", {'index': index});
+                          await Get.find<RequestsController>()
+                              .delete(list[index]);
+                          list.removeAt(index);
+                        },
+                      ),
+                      title: Text(parsNumbers(list[index].name, (locale))),
+                      subtitle: Text(
+                          DateFormat.yMMMd(locale).format(list[index].date)),
+                    );
+                  }),
+            ),
+          ],
+        ));
   }
 
   parsNumbers(String string, String locale) {

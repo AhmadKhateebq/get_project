@@ -13,6 +13,7 @@ main() async {
   Get.put(TodoController());
   Get.put(RequestsController());
   runApp(GetMaterialApp(
+    debugShowCheckedModeBanner: false,
       translations: TodoTranslations(),
       supportedLocales: const [
         Locale('ar'),
