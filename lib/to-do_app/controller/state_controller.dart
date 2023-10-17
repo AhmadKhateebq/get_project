@@ -76,7 +76,6 @@ class TodoController extends GetxController with StateMixin {
                 final name = textController.text;
                 var id = await Get.find<RequestsController>()
                     .addTodo(ToDo(name: name, date: date));
-                print(id.toString());
                 Get.find<RequestsController>()
                     .filteredTodos
                     .add(ToDo(name: name, date: date, id: id.toString()));

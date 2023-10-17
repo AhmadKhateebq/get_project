@@ -6,10 +6,9 @@ import 'package:get_project/to-do_app/controller/state_controller.dart';
 import 'package:get_project/to-do_app/data/to_do_object.dart';
 import 'package:intl/intl.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:skeletonizer/skeletonizer.dart';
 
-import '../../data/debouncer_class.dart';
 import '../../controller/requests_controller.dart';
+import '../../data/debouncer_class.dart';
 
 class ListViewBody extends StatefulWidget {
   const ListViewBody({super.key, required this.locale});
@@ -82,7 +81,6 @@ class _ListViewBodyState extends State<ListViewBody> {
                     await Get.find<RequestsController>().empty();
                     search = false;
                   } else {
-                    print(val);
                     var results =
                         await Get.find<RequestsController>().search(val);
                     if (results != []) {
@@ -181,9 +179,7 @@ class _ListViewBodyState extends State<ListViewBody> {
             duration: const Duration(milliseconds: 1000),
             curve: Curves.fastOutSlowIn);
       }
-
     }
-
   }
 
   ScrollController get scrollController {
@@ -207,10 +203,11 @@ class _ListViewBodyState extends State<ListViewBody> {
                 ),
                 title: !Get.find<RequestsController>().pageEnd.value
                     ? Container(
-                  width: Get.width / 7,
-                  height: 8.0,
-                  color: Colors.white,
-                ):const Text("no more data to show"),
+                        width: Get.width / 7,
+                        height: 8.0,
+                        color: Colors.white,
+                      )
+                    : const Text("no more data to show"),
                 subtitle: Container(
                   width: Get.width / 5,
                   height: 8.0,

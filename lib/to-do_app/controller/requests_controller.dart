@@ -7,12 +7,12 @@ import 'package:get_project/to-do_app/controller/dio_controller.dart';
 import 'package:get_project/to-do_app/controller/state_controller.dart';
 import 'package:get_project/to-do_app/data/to_do_object.dart';
 import 'package:get_project/to-do_app/page/login_page.dart';
+import 'package:get_project/to-do_app/util/login_interceptor.dart';
 
 class RequestsController extends RxController {
   final DioRequests dio = DioRequests.instance;
   var filteredTodos = <ToDo>[].obs;
   RxBool isLoading = true.obs;
-  String _token = "";
   Map<String, dynamic> _userCredential = {};
   static String finalSearch = "";
   late List<ToDo> latest;
@@ -61,10 +61,12 @@ class RequestsController extends RxController {
     try {
       _userCredential = await dio.loginAndRegister(
           email: email, password: password, register: false);
-      _token = _userCredential['idToken']!;
+      // print(_userCredential.toString());
       await printBy();
       return true;
-    } catch (e) {
+    } catch (e,s) {
+      print(e);
+      print(s);
       // rethrow;
       return false;
     }
@@ -74,7 +76,6 @@ class RequestsController extends RxController {
     try {
       _userCredential = await dio.loginAndRegister(
           email: email, password: password, register: true);
-      _token = _userCredential['idToken']!;
       await printBy();
       return true;
     } catch (e) {
@@ -97,7 +98,6 @@ class RequestsController extends RxController {
     try {
       final response = await dio.search(
           localId: _userCredential['localId'],
-          token: _token,
           value: value,
           cancelToken: token);
       log("${response.statusCode}", name: "CODE ");
@@ -133,7 +133,6 @@ class RequestsController extends RxController {
       {int? anchorCID, required int entries, bool? reset = false}) async {
     final response = await dio.fetchFiltered(
         localId: _userCredential['localId'],
-        token: _token,
         entries: entries,
         anchorCID: anchorCID);
     try {
@@ -177,14 +176,13 @@ class RequestsController extends RxController {
   Future<String> addTodo(ToDo toDo) async {
     return await dio.addTodo(
       localId: _userCredential['localId'],
-      token: _token,
       toDo: toDo,
     );
   }
 
   Future<void> delete(ToDo todo) async {
     var response = await dio.deleteTodo(
-        localId: _userCredential['localId'], token: _token, todo: todo);
+        localId: _userCredential['localId'], todo: todo);
     empty();
     log(response.data.toString());
   }
@@ -210,7 +208,7 @@ class RequestsController extends RxController {
   }
 
   void logout() {
-    _token = "";
+    LoginInterceptor.logout();
     filteredTodos.value = [];
     _userCredential = {};
     Get.find<TodoController>().loading.value = true;

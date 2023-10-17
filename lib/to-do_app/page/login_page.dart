@@ -39,8 +39,6 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    print("////////////////");
-    print("build");
     final emailField = FormTextField(
       label: "Email",
       isPassword: false,
@@ -57,7 +55,6 @@ class _LoginPageState extends State<LoginPage> {
     );
     formListValidator.add(emailField);
     formListValidator.add(passwordField);
-    print("//////////////////");
     return SafeArea(
       child: Scaffold(
         body: Stack(
@@ -249,9 +246,7 @@ class _LoginPageState extends State<LoginPage> {
       }
     } else if (!emailValid && passwordValid) {
       emailController.text = "";
-      print("Invalid email");
     } else if (!passwordValid && emailValid) {
-      print("invalid password");
       passwordController.text = "";
     }
   }

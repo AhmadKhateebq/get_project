@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
+import 'package:get_project/to-do_app/util/login_interceptor.dart';
 
 import '../util/consts.dart';
 import '../data/to_do_object.dart';
@@ -17,7 +18,8 @@ class DioRequests {
   static get instance => dio;
   init(){
     if(!isInit){
-      addInterceptor(LogInterceptor());
+      // addInterceptor(LogInterceptor());
+      addInterceptor(LoginInterceptor());
       isInit = true;
     }
   }
@@ -40,11 +42,10 @@ class DioRequests {
   }
 
   fetchFiltered(
-      {required localId, required token, anchorCID, required entries}) async {
+      {required localId, anchorCID, required entries}) async {
     return await _dio.get(
       "/todo/$localId.json",
       queryParameters: {
-        "auth": token,
         "orderBy": "\"cid\"",
         anchorCID != null ? "startAfter" : "": "${anchorCID ?? ""}",
         "limitToFirst": "$entries"
@@ -68,13 +69,12 @@ class DioRequests {
 
   Future<String> addTodo({
     required localId,
-    required token,
     required toDo,
   }) async {
     int c = await counter;
     try {
       var date = toDo.date;
-      var resp = await _dio.post("/todo/$localId.json?auth=$token",
+      var resp = await _dio.post("/todo/$localId.json?",
           data: jsonEncode({
             "date": "${date.year}-${date.month}-${date.day}",
             "name": toDo.name,
@@ -88,11 +88,10 @@ class DioRequests {
 
   deleteTodo({
     required localId,
-    required token,
     required todo,
   }) async {
     return await _dio
-        .put(("/todo/$localId/${todo.id}.json?auth=$token"), data: {
+        .put(("/todo/$localId/${todo.id}.json"), data: {
       "name": todo.name,
       "cid": -9,
       "date": "${todo.date.year}-${todo.date.month}-${todo.date.day}"
@@ -101,14 +100,12 @@ class DioRequests {
 
   search({
     required localId,
-    required token,
     required value,
     required cancelToken,
   }) async {
     return await _dio.get(
       "/todo/$localId.json",
       queryParameters: {
-        "auth": token,
         "orderBy": "\"name\"",
         "startAt": "\"$value\"",
         "limitToFirst": "10"
@@ -124,7 +121,7 @@ class DioRequests {
     var resp = await _dio.post(
         ("$loginUrl${register ? "signUp" : "signInWithPassword"}"),
         queryParameters: {
-          "key": key
+          "key" : key
         },
         data: {
           "email": email,
