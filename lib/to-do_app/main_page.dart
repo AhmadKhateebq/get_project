@@ -13,6 +13,7 @@ main() async {
   Get.put(TodoController());
   Get.put(RequestsController());
   runApp(GetMaterialApp(
+    debugShowCheckedModeBanner: false,
       translations: TodoTranslations(),
       supportedLocales: const [
         Locale('ar'),
@@ -31,11 +32,11 @@ main() async {
 
 class MainPage extends StatelessWidget {
   const MainPage({super.key});
+
   @override
   Widget build(BuildContext context) {
-    return  SafeArea(
-        child: LoginPage(),
+    return const SafeArea(
+      child: LoginPage(),
     );
   }
-
 }

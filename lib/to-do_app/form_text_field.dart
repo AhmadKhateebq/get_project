@@ -18,6 +18,7 @@ class FormTextField extends StatelessWidget {
   final TextEditingController controller;
   final _changed = false.obs;
   final _focused = false.obs;
+  bool valid = false;
   late final bool _isPassword;
 
   final _text = "".obs;
@@ -31,14 +32,12 @@ class FormTextField extends StatelessWidget {
         Focus(
           onFocusChange: (f) {
             if (f) {
-              print("isFocused");
               _focused.value = true;
             }
             if (!f) {
               if (_focused.value) {
                 _text.value =
                     _validator(controller.text) ? "" : "This field is required";
-                print("focused and not focused");
               }
             }
           },
@@ -52,6 +51,7 @@ class FormTextField extends StatelessWidget {
               },
               onChanged: (text) => _changed.value = true,
               controller: controller,
+              style: const TextStyle(color: Colors.black87),
               decoration: InputDecoration(
                 floatingLabelStyle: const TextStyle(color: Colors.deepPurple),
                 // border: const UnderlineInputBorder(borderSide: BorderSide(color: Colors.red)),
@@ -63,6 +63,7 @@ class FormTextField extends StatelessWidget {
                       color: _text.value == "" ? Colors.blue : Colors.red),
                 ),
                 labelText: _label,
+                labelStyle: const TextStyle(color: Colors.black87),
               ),
             ),
           ),
@@ -78,8 +79,43 @@ class FormTextField extends StatelessWidget {
   validate() {
     _focused.value = true;
     if (_focused.value) {
-      _text.value = _validator(controller.text) ? "" : "This field is required";
-      print("focused and not focused");
+      _validator(controller.text)
+          ? {
+              _text.value = "",
+              valid = true,
+            }
+          : {valid = false, _text.value = "This field is required"};
+    }
+    return valid;
+  }
+}
+
+class FormListValidator {
+  FormListValidator();
+
+  final List<FormTextField> _list = [];
+
+  add(FormTextField field) {
+    _list.add(field);
+  }
+
+  removeAt(int i) {
+    _list.removeAt(i);
+  }
+
+  remove(FormTextField field) {
+    _list.remove(field);
+  }
+
+  validateAll() {
+    bool valid = true;
+    for (var value in _list) {
+      if (value.validate()) {
+        valid = true;
+      } else {
+        valid = false;
+      }
+      return valid;
     }
   }
 }
