@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get_project/to-do_app/form_text_field.dart';
-import 'package:get_project/to-do_app/splash.dart';
-import 'package:get_project/to-do_app/state_controller.dart';
+import 'package:get_project/to-do_app/page/component/form_text_field.dart';
+import 'package:get_project/to-do_app/page/splash.dart';
+import 'package:get_project/to-do_app/controller/state_controller.dart';
 
 import 'home_widget.dart';
-import 'http_requests.dart';
+import '../controller/requests_controller.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});

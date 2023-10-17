@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get/get.dart';
-import 'package:get_project/to-do_app/login_page.dart';
-import 'package:get_project/to-do_app/state_controller.dart';
-import 'package:get_project/to-do_app/translation.dart';
+import 'package:get_project/to-do_app/page/login_page.dart';
+import 'package:get_project/to-do_app/controller/state_controller.dart';
+import 'package:get_project/to-do_app/util/translation.dart';
 
-import 'http_requests.dart';
+import 'controller/requests_controller.dart';
 
 main() async {
   WidgetsFlutterBinding.ensureInitialized();
