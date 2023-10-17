@@ -6,12 +6,13 @@ import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get_project/to-do_app/http_requests.dart';
-import 'package:get_project/to-do_app/to_do_object.dart';
+import 'package:get_project/to-do_app/controller/requests_controller.dart';
+import 'package:get_project/to-do_app/data/to_do_object.dart';
+
 // import 'package:get_project/to-do_app/to_do_object.dart';
 import 'package:get_storage/get_storage.dart';
 
-import '../firebase_options.dart';
+import '../../firebase_options.dart';
 // import 'firebase_controller.dart';
 
 class TodoController extends GetxController with StateMixin {
@@ -71,16 +72,13 @@ class TodoController extends GetxController with StateMixin {
             ),
             ElevatedButton(
               onPressed: () async {
-                if (date == DateTime(1900)) {
-                  date = await showDate() ?? DateTime.now();
-                }
+                date = await showDate() ?? DateTime.now();
                 final name = textController.text;
-                var id =await  Get.find<RequestsController>()
+                var id = await Get.find<RequestsController>()
                     .addTodo(ToDo(name: name, date: date));
-                print(id.toString());
                 Get.find<RequestsController>()
-                    .todos
-                    .add(ToDo(name: name, date: date,id: id.toString()));
+                    .filteredTodos
+                    .add(ToDo(name: name, date: date, id: id.toString()));
                 log("add_todo", {'name': name, 'date': date.toString()});
                 Get.back(); // Close the overlay
               },
@@ -95,7 +93,7 @@ class TodoController extends GetxController with StateMixin {
           ],
         ),
       ),
-      backgroundColor: Get.isDarkMode?Colors.black87:Colors.white70,
+      backgroundColor: Get.isDarkMode ? Colors.black87 : Colors.white70,
     );
   }
 
@@ -177,7 +175,7 @@ class TodoController extends GetxController with StateMixin {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.android,
     );
-
+    await Get.find<RequestsController>().init();
     await errorInit();
     await Future.delayed(const Duration(seconds: 1));
     await GetStorage.init();
