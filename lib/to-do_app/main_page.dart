@@ -11,7 +11,7 @@ main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   Get.put(TodoController());
-  Get.put(RequestsController());
+  Get.put(RequestsController()).dio.init();
   runApp(GetMaterialApp(
     debugShowCheckedModeBanner: false,
       translations: TodoTranslations(),

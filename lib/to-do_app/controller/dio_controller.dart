@@ -13,13 +13,21 @@ class DioRequests {
   }));
   static final  DioRequests dio = DioRequests._();
   DioRequests._();
-
+  static bool isInit = false;
   static get instance => dio;
-
+  init(){
+    if(!isInit){
+      addInterceptor(LogInterceptor());
+      isInit = true;
+    }
+  }
+  void addInterceptor(Interceptor interceptor) {
+    _dio.interceptors.add(interceptor);
+  }
   fetchAll() async {
     await _dio
         .get(
-      ("$firebaseUrl.json"),
+      (".json"),
     )
         .then((value) {
       Map<String, dynamic> resp = jsonDecode(value.toString());
@@ -34,7 +42,7 @@ class DioRequests {
   fetchFiltered(
       {required localId, required token, anchorCID, required entries}) async {
     return await _dio.get(
-      "$firebaseUrl/$localId.json",
+      "/todo/$localId.json",
       queryParameters: {
         "auth": token,
         "orderBy": "\"cid\"",
@@ -54,11 +62,11 @@ class DioRequests {
 
   Future<int> getCounter() async {
     var resp = (await _dio.get(
-        "https://to-do-app-quiz-plus-task-default-rtdb.europe-west1.firebasedatabase.app/counter.json"));
+        "/counter.json"));
     return (jsonDecode(resp.toString())["counter"]);
   }
 
-  addTodo({
+  Future<String> addTodo({
     required localId,
     required token,
     required toDo,
@@ -66,13 +74,13 @@ class DioRequests {
     int c = await counter;
     try {
       var date = toDo.date;
-      var resp = await _dio.post("$firebaseUrl/$localId.json?auth=$token",
+      var resp = await _dio.post("/todo/$localId.json?auth=$token",
           data: jsonEncode({
             "date": "${date.year}-${date.month}-${date.day}",
             "name": toDo.name,
             "cid": c,
           }));
-      return jsonDecode(resp.data)["name"];
+      return jsonDecode(resp.toString())["name"];
     } catch (e) {
       rethrow;
     }
@@ -84,7 +92,7 @@ class DioRequests {
     required todo,
   }) async {
     return await _dio
-        .put(("$firebaseUrl/$localId/${todo.id}.json?auth=$token"), data: {
+        .put(("/todo/$localId/${todo.id}.json?auth=$token"), data: {
       "name": todo.name,
       "cid": -9,
       "date": "${todo.date.year}-${todo.date.month}-${todo.date.day}"
@@ -98,7 +106,7 @@ class DioRequests {
     required cancelToken,
   }) async {
     return await _dio.get(
-      "$firebaseBaseUrl/todo/$localId.json",
+      "/todo/$localId.json",
       queryParameters: {
         "auth": token,
         "orderBy": "\"name\"",
@@ -114,9 +122,9 @@ class DioRequests {
       required String password,
       required bool register}) async {
     var resp = await _dio.post(
-        ("https://identitytoolkit.googleapis.com/v1/accounts:${register ? "signUp" : "signInWithPassword"}"),
+        ("$loginUrl${register ? "signUp" : "signInWithPassword"}"),
         queryParameters: {
-          "key": "AIzaSyChQLf7QcPidBnZ5e0KNyMNmRMwx5zaoCc"
+          "key": key
         },
         data: {
           "email": email,
